@@ -3,10 +3,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Settings } from "lucide-react";
 
 import SettingsPanel from "../../components/SettingsPanel";
+import Footer from "../../components/footer";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Toggle } from "../../components/ui/toggle";
+import { getArabicFontStack, normalizeArabicFont } from "../../lib/arabicFont";
 import { getAllSurahsStatic, getSurahByIdStatic } from "../../lib/quranStaticData";
 
 export async function getStaticPaths() {
@@ -37,6 +39,8 @@ export default function SurahPage({ surah }) {
     arabicFont: "Amiri",
     arabicSize: 24,
     translationSize: 18,
+    decorativeCards: true,
+    darkMode: false,
   });
 
   useEffect(() => {
@@ -45,31 +49,48 @@ export default function SurahPage({ surah }) {
     const savedArabicFont = localStorage.getItem("arabicFont");
     const savedArabicSize = localStorage.getItem("arabicSize");
     const savedTranslationSize = localStorage.getItem("translationSize");
+    const savedDecorativeCards = localStorage.getItem("decorativeCards");
+    const savedDarkMode = localStorage.getItem("darkMode");
 
     setSettings({
-      arabicFont: savedArabicFont || "Amiri",
+      arabicFont: normalizeArabicFont(savedArabicFont || "Amiri"),
       arabicSize: savedArabicSize ? Number(savedArabicSize) : 24,
       translationSize: savedTranslationSize ? Number(savedTranslationSize) : 18,
+      decorativeCards: savedDecorativeCards == null ? true : savedDecorativeCards === "true",
+      darkMode: savedDarkMode === "true",
     });
   }, []);
 
   const handleSettingsChange = useCallback((newSettings) => {
+    const normalizedArabicFont = normalizeArabicFont(newSettings.arabicFont);
+
     if (typeof window !== "undefined") {
-      localStorage.setItem("arabicFont", newSettings.arabicFont);
+      localStorage.setItem("arabicFont", normalizedArabicFont);
       localStorage.setItem("arabicSize", String(newSettings.arabicSize));
       localStorage.setItem("translationSize", String(newSettings.translationSize));
+      localStorage.setItem("decorativeCards", String(Boolean(newSettings.decorativeCards)));
+      localStorage.setItem("darkMode", String(Boolean(newSettings.darkMode)));
+      document.documentElement.classList.toggle("dark", Boolean(newSettings.darkMode));
+      window.dispatchEvent(new Event("quran-theme-change"));
     }
+
+    const normalizedSettings = {
+      ...newSettings,
+      arabicFont: normalizedArabicFont,
+    };
 
     setSettings((prev) => {
       if (
-        prev.arabicFont === newSettings.arabicFont &&
-        prev.arabicSize === newSettings.arabicSize &&
-        prev.translationSize === newSettings.translationSize
+        prev.arabicFont === normalizedSettings.arabicFont &&
+        prev.arabicSize === normalizedSettings.arabicSize &&
+        prev.translationSize === normalizedSettings.translationSize &&
+        prev.decorativeCards === normalizedSettings.decorativeCards &&
+        prev.darkMode === normalizedSettings.darkMode
       ) {
         return prev;
       }
 
-      return newSettings;
+      return normalizedSettings;
     });
   }, []);
 
@@ -87,8 +108,8 @@ export default function SurahPage({ surah }) {
   }, [ayahFilter, surah.ayahs]);
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
+    <div className="flex min-h-screen flex-col bg-slate-100 dark:bg-slate-950">
+      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
           <Button asChild variant="outline" size="sm" className="rounded-xl">
             <Link href="/" aria-label="Back to homepage">
@@ -98,10 +119,10 @@ export default function SurahPage({ surah }) {
           </Button>
 
           <div className="text-center">
-            <h1 className="text-2xl font-bold leading-tight text-slate-900 md:text-3xl" dir="rtl">
+            <h1 className="text-2xl font-bold leading-tight text-slate-900 dark:text-slate-100 md:text-3xl" dir="rtl">
               {surah.nameArabic || `سورة ${surah.number}`}
             </h1>
-            <p className="text-sm text-slate-600 md:text-base">
+            <p className="text-sm text-slate-600 dark:text-slate-300 md:text-base">
               {surah.nameEnglish} | {surah.nameBangla || ""}
             </p>
           </div>
@@ -120,8 +141,24 @@ export default function SurahPage({ surah }) {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-4xl px-4 py-5 sm:px-6 lg:px-8">
-        <Card className="mb-5 border border-slate-200/80 bg-slate-50/80">
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-5 sm:px-6 lg:px-8">
+        <section className="mb-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-300 dark:bg-white">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                Surah {surah.number}
+              </span>
+              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
+                {filteredAyahs.length}/{surah.ayahs.length} Ayahs
+              </span>
+            </div>
+            <p className="text-xs text-slate-500">
+              Language: {lang === "eng" ? "English" : "Bangla"}
+            </p>
+          </div>
+        </section>
+
+        <Card className="mb-5 border border-slate-200/80 bg-slate-50/80 shadow-sm dark:border-slate-300 dark:bg-white">
           <CardHeader className="pb-2">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2">
@@ -159,30 +196,33 @@ export default function SurahPage({ surah }) {
           </CardHeader>
         </Card>
 
-        <section className="max-h-[calc(100vh-220px)] space-y-4 overflow-y-auto pr-1">
+        <section className="space-y-4">
           <div className="space-y-4">
             {filteredAyahs.map((ayah) => (
               <Card
                 key={ayah.aya}
-                className={`border border-slate-200 transition-all duration-200 ${
+                className={`group relative overflow-hidden border border-slate-200 transition-all duration-200 ${
                   settings.decorativeCards
                     ? "bg-white shadow-sm hover:-translate-y-0.5 hover:shadow-lg"
                     : "bg-white/90 hover:bg-slate-50"
                 }`}
               >
+                {settings.decorativeCards && (
+                  <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-emerald-100/60 blur-xl" />
+                )}
                 <CardContent className="space-y-3 pt-6">
                   <div className="flex items-start justify-between gap-3">
                     <p
                       className="flex-1 text-right leading-relaxed text-slate-900"
                       dir="rtl"
                       style={{
-                        fontFamily: settings.arabicFont,
+                        fontFamily: getArabicFontStack(settings.arabicFont),
                         fontSize: `${settings.arabicSize}px`,
                       }}
                     >
                       {ayah.textArabic || "(Arabic not available)"}
                     </p>
-                    <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-slate-200 px-2 text-xs font-semibold text-slate-700">
+                    <span className="inline-flex h-7 min-w-7 items-center justify-center rounded-full bg-emerald-100 px-2 text-xs font-semibold text-emerald-700">
                       {ayah.aya}
                     </span>
                   </div>
@@ -201,8 +241,8 @@ export default function SurahPage({ surah }) {
           </div>
 
           {filteredAyahs.length === 0 && (
-            <Card className="border border-dashed border-slate-300 bg-white/70">
-              <CardContent className="pt-6 text-center text-slate-600">
+            <Card className="border border-dashed border-slate-300 bg-white/70 dark:border-slate-300 dark:bg-white">
+              <CardContent className="pt-6 text-center text-slate-600 dark:text-slate-800">
                 No ayah matched your filter.
               </CardContent>
             </Card>
@@ -218,6 +258,8 @@ export default function SurahPage({ surah }) {
         translationLanguage={lang}
         onTranslationLanguageChange={setLang}
       />
+
+      <Footer />
     </div>
   );
 }

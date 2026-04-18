@@ -13,16 +13,39 @@ export default function SettingsPanel({
   translationLanguage,
   onTranslationLanguageChange,
 }) {
+  const normalizeArabicFont = (fontValue) => {
+    const raw = String(fontValue || "").toLowerCase();
+    if (raw.includes("scheherazade")) return "Scheherazade New";
+    return "Amiri";
+  };
+
+  const normalizeAppearance = (nextSettings) => {
+    if (nextSettings.darkMode) {
+      return { ...nextSettings, decorativeCards: false };
+    }
+
+    // Keep one appearance mode selected when dark mode is off.
+    if (!nextSettings.decorativeCards) {
+      return { ...nextSettings, decorativeCards: true };
+    }
+
+    return nextSettings;
+  };
+
   const mergedSettings = {
     arabicFont: "Amiri",
     arabicSize: 24,
     translationSize: 18,
     decorativeCards: true,
-    ...settings,
+    darkMode: false,
+    ...normalizeAppearance(settings || {}),
   };
 
+  mergedSettings.arabicFont = normalizeArabicFont(mergedSettings.arabicFont);
+
   const updateSetting = (patch) => {
-    onChange?.({ ...mergedSettings, ...patch });
+    const next = normalizeAppearance({ ...mergedSettings, ...patch });
+    onChange?.(next);
   };
 
   return (
@@ -35,50 +58,50 @@ export default function SettingsPanel({
         type="button"
         aria-label="Close settings panel"
         onClick={onClose}
-        className="absolute inset-0 bg-slate-900/35"
+        className="absolute inset-0 bg-slate-900/45"
       />
 
       <aside
-        className={`absolute right-0 top-0 h-full w-full max-w-sm transform overflow-y-auto border-l border-slate-200 bg-slate-50 p-4 shadow-2xl transition-transform duration-300 ease-out ${
+        className={`absolute right-0 top-0 h-full w-full max-w-sm transform overflow-y-auto border-l border-slate-200 bg-slate-50 p-4 shadow-2xl transition-transform duration-300 ease-out dark:border-slate-700 dark:bg-slate-900 ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-slate-800">Reading Settings</h2>
+          <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-100">Reading Settings</h2>
           <Button
             type="button"
             variant="outline"
             size="icon"
             onClick={onClose}
             aria-label="Close settings panel"
-            className="rounded-xl hover:bg-slate-100"
+            className="rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800"
           >
             <X className="h-4 w-4" />
           </Button>
         </div>
 
-        <Card className="border border-slate-200 bg-white shadow-md">
+        <Card className="border border-slate-200 bg-white shadow-md dark:border-slate-300 dark:bg-white">
           <CardHeader>
-            <CardTitle>Typography</CardTitle>
+            <CardTitle className="text-slate-900 dark:text-slate-900">Typography</CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
             <div className="space-y-2">
-              <label htmlFor="arabic-font" className="text-sm font-medium text-slate-700">
+              <label htmlFor="arabic-font" className="text-sm font-medium text-slate-700 dark:text-slate-700">
                 Arabic Font
               </label>
               <select
                 id="arabic-font"
                 value={mergedSettings.arabicFont}
                 onChange={(event) => updateSetting({ arabicFont: event.target.value })}
-                className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-slate-400 dark:bg-white dark:text-slate-900"
               >
                 <option value="Amiri">Amiri</option>
-                <option value="Scheherazade">Scheherazade</option>
+                <option value="Scheherazade New">Scheherazade</option>
               </select>
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm text-slate-700">
+              <div className="flex items-center justify-between text-sm text-slate-700 dark:text-slate-700">
                 <label htmlFor="arabic-size" className="font-medium">
                   Arabic Font Size
                 </label>
@@ -96,7 +119,7 @@ export default function SettingsPanel({
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm text-slate-700">
+              <div className="flex items-center justify-between text-sm text-slate-700 dark:text-slate-700">
                 <label htmlFor="translation-size" className="font-medium">
                   Translation Font Size
                 </label>
@@ -114,7 +137,7 @@ export default function SettingsPanel({
             </div>
 
             <div className="space-y-2">
-              <p className="text-sm font-medium text-slate-700">Translation Language</p>
+              <p className="text-sm font-medium text-slate-700 dark:text-slate-700">Translation Language</p>
               <div className="flex items-center gap-2">
                 <Toggle
                   variant="outline"
@@ -140,14 +163,30 @@ export default function SettingsPanel({
             </div>
 
             <div className="space-y-2">
-              <p className="text-sm font-medium text-slate-700">Decorations</p>
+              <p className="text-sm font-medium text-slate-700 dark:text-slate-700">Appearance</p>
               <Toggle
                 variant="outline"
                 pressed={Boolean(mergedSettings.decorativeCards)}
-                onPressedChange={(pressed) => updateSetting({ decorativeCards: pressed })}
+                onPressedChange={(pressed) => {
+                  if (pressed) {
+                    updateSetting({ decorativeCards: true, darkMode: false });
+                  }
+                }}
                 aria-label="Toggle decorative card styling"
               >
                 Decorative Cards
+              </Toggle>
+              <Toggle
+                variant="outline"
+                pressed={Boolean(mergedSettings.darkMode)}
+                onPressedChange={(pressed) => {
+                  if (pressed) {
+                    updateSetting({ darkMode: true, decorativeCards: false });
+                  }
+                }}
+                aria-label="Toggle dark mode"
+              >
+                Dark Mode
               </Toggle>
             </div>
           </CardContent>

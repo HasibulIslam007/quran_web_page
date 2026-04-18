@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Quran App Frontend
 
-## Getting Started
+Frontend for a Quran reading and search experience built with Next.js, React, and Tailwind CSS.
 
-First, run the development server:
+## Features
+
+- Homepage with Surah discovery and quick search
+- Dedicated search page powered by the backend API
+- Surah details page with Arabic text, translations, and settings
+- About page, reusable header, footer, and settings sidebar
+- Dark mode, Arabic font selection, and text-size preferences
+
+## Requirements
+
+- Node.js 18+ recommended
+- Backend running on `http://localhost:3001` for local development
+
+## Setup
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Create a `.env.local` file in this folder if you need to override the backend URL:
+
+```bash
+NEXT_PUBLIC_API_URL=http://localhost:3001
+NEXT_PUBLIC_API_BASE_URL=http://localhost:3001
+```
+
+## Scripts
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run build
+npm run start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Development
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+Start the frontend with:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run dev
+```
 
-## Learn More
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-To learn more about Next.js, take a look at the following resources:
+The app uses the Pages Router, so the main routes live in `pages/`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `pages/` - main routes such as home, search, about, and surah details
+- `components/` - shared layout and UI components
+- `lib/` - frontend helpers and search logic
+- `utils/` - shared fetch helpers
+- `public/` - static assets
 
-## Deploy on Vercel
+## Notes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Keep the backend URL pointed at a real server in production; do not leave it set to localhost.
+- The theme and reading preferences are stored in the browser and applied globally.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Deployment
+
+Build the app with `npm run build`, then deploy the `frontend` folder as the app root in your hosting provider.

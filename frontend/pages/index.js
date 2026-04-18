@@ -23,6 +23,7 @@ export default function Home({ surahs }) {
     translationSize: 18,
   });
   const [searchResults, setSearchResults] = useState([]);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // Load persisted settings
   useEffect(() => {
@@ -38,9 +39,19 @@ export default function Home({ surahs }) {
 
   const handleSettingsChange = useCallback((newSettings) => {
     localStorage.setItem("arabicFont", newSettings.arabicFont);
-    localStorage.setItem("arabicSize", newSettings.arabicSize);
-    localStorage.setItem("translationSize", newSettings.translationSize);
-    setSettings(newSettings);
+    localStorage.setItem("arabicSize", String(newSettings.arabicSize));
+    localStorage.setItem("translationSize", String(newSettings.translationSize));
+    setSettings((prev) => {
+      if (
+        prev.arabicFont === newSettings.arabicFont &&
+        prev.arabicSize === newSettings.arabicSize &&
+        prev.translationSize === newSettings.translationSize
+      ) {
+        return prev;
+      }
+
+      return newSettings;
+    });
   }, []);
 
   const handleSearch = async () => {
@@ -115,8 +126,8 @@ export default function Home({ surahs }) {
 
   const getSurahLinkLabel = (surah) =>
     lang === "arb" ? surah.nameArabic || "(Arabic not available)"
-    : lang === "ban" ? surah.nameArabic || "(Bangla not available)"
-    : surah.nameArabic || "(English not available)";
+    : lang === "ban" ? surah.nameBangla || "(Bangla not available)"
+    : surah.nameEnglish || "(English not available)";
 
   const suggestions = useMemo(() => rankSurahs(surahs, query, 7), [query, surahs]);
 
@@ -127,16 +138,23 @@ export default function Home({ surahs }) {
   return (
     <div className="min-h-screen bg-[#F9FAFB]">
       {/* Header */}
-      <Header />
+      <Header
+        isSettingsOpen={isSettingsOpen}
+        onToggleSettings={() => setIsSettingsOpen((prev) => !prev)}
+      />
+
+      <SettingsPanel
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        settings={settings}
+        onChange={handleSettingsChange}
+        translationLanguage={lang === "ban" ? "ban" : "eng"}
+        onTranslationLanguageChange={setLang}
+      />
 
       {/* Page Title */}
       <div className="text-center py-6">
         <h1 className="text-4xl font-bold text-[#065F46]">Quran Surahs</h1>
-      </div>
-
-      {/* Settings Panel */}
-      <div className="max-w-6xl mx-auto px-4 mb-6">
-        <SettingsPanel onChange={handleSettingsChange} />
       </div>
 
       {/* Search Box */}
@@ -170,8 +188,15 @@ export default function Home({ surahs }) {
       {searchResults.length > 0 && (
         <div className="max-w-4xl mx-auto mb-8 space-y-3">
           {searchResults.map((r, idx) => (
-            <Card key={idx} className="hover:bg-gray-50 cursor-pointer transition p-4 flex flex-col justify-between">
-              <Link href={`/surah/${r.surah}`}>
+            <Card
+              key={idx}
+              className={`cursor-pointer p-4 transition flex flex-col justify-between ${
+                settings.decorativeCards
+                  ? "bg-white shadow-sm hover:-translate-y-0.5 hover:shadow-md"
+                  : "bg-white/80 hover:bg-gray-50"
+              }`}
+            >
+              <Link href={`/surah/${r.number}`}>
                 <p
                   className={lang === "arb" ? "text-right mb-1" : "text-left mb-1"}
                   style={
@@ -194,7 +219,13 @@ export default function Home({ surahs }) {
         <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {surahs.map((s) => (
             <li key={s.number}>
-              <Card className="hover:bg-gray-50 cursor-pointer transition p-6 flex flex-col justify-between min-h-[160px]">
+              <Card
+                className={`cursor-pointer p-6 transition flex flex-col justify-between min-h-[160px] ${
+                  settings.decorativeCards
+                    ? "bg-white shadow-sm hover:-translate-y-0.5 hover:shadow-md"
+                    : "bg-white/80 hover:bg-gray-50"
+                }`}
+              >
                 <Link href={`/surah/${s.number}`}>
                   {/* Arabic + Surah number */}
                   <p

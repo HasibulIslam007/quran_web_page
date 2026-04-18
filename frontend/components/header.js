@@ -1,8 +1,16 @@
 import { useState } from "react";
 import Link from "next/link";
+import { Settings, Menu, X } from "lucide-react";
 
-export default function Header() {
+import { Button } from "./ui/button";
+
+export default function Header({ onToggleSettings, isSettingsOpen = false }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const handleSettingsClick = (event) => {
+    event.preventDefault();
+    onToggleSettings?.();
+  };
 
   return (
     <header className="w-full bg-white shadow-md sticky top-0 z-50">
@@ -15,7 +23,7 @@ export default function Header() {
         </Link>
 
         {/* Desktop Menu */}
-        <nav className="hidden md:flex space-x-6">
+        <nav className="hidden md:flex items-center space-x-6">
           <Link href="/" className="text-gray-700 hover:text-blue-700 font-medium">
             Home
           </Link>
@@ -25,29 +33,46 @@ export default function Header() {
           <Link href="/about" className="text-gray-700 hover:text-blue-700 font-medium">
             About
           </Link>
+          <Button
+            onClick={handleSettingsClick}
+            variant={isSettingsOpen ? "default" : "outline"}
+            size="icon"
+            className="rounded-xl"
+            aria-label="Open settings"
+            type="button"
+            aria-pressed={isSettingsOpen}
+          >
+            <Settings className="h-5 w-5" />
+          </Button>
         </nav>
 
         {/* Mobile Hamburger */}
-        <div className="md:hidden">
-          <button
+        <div className="md:hidden flex items-center gap-3">
+          <Button
+            onClick={handleSettingsClick}
+            variant={isSettingsOpen ? "default" : "outline"}
+            size="icon"
+            className="rounded-xl"
+            aria-label="Open settings"
+            type="button"
+            aria-pressed={isSettingsOpen}
+          >
+            <Settings className="h-5 w-5" />
+          </Button>
+          <Button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="text-gray-700 focus:outline-none"
+            variant="outline"
+            size="icon"
+            className="rounded-xl"
             aria-label="Open menu"
+            type="button"
           >
             {mobileMenuOpen ? (
-              // Close icon
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none"
-                viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <X className="h-5 w-5" />
             ) : (
-              // Hamburger icon
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none"
-                viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
+              <Menu className="h-5 w-5" />
             )}
-          </button>
+          </Button>
         </div>
       </div>
 

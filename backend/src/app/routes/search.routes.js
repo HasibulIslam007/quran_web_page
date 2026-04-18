@@ -1,3 +1,5 @@
+/* global require, module */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const express = require("express");
 const router = express.Router();
 const { searchAyahs } = require("../controllers/searchController");

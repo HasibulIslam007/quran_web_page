@@ -13,7 +13,7 @@ export default function HomeSurahGrid({
         {surahs.map((surah) => (
           <li key={surah.number}>
             <Card
-              className={`group relative overflow-hidden border border-slate-200 p-5 transition duration-200 min-h-[188px] ${
+              className={`group relative overflow-hidden border border-slate-200 p-5 transition duration-200 min-h-47 ${
                 settings.decorativeCards
                   ? "bg-white shadow-sm hover:-translate-y-1 hover:shadow-lg"
                   : "bg-white/90 hover:bg-slate-50"

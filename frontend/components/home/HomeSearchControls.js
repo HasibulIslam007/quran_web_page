@@ -31,7 +31,7 @@ export default function HomeSearchControls({
           value={query}
           onChange={(event) => onQueryChange(event.target.value)}
           placeholder="Search surah name..."
-          className="flex-grow"
+          className="grow"
         />
         <Button onClick={onSearch} variant="default">
           Search

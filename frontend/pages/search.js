@@ -17,7 +17,10 @@ const DEFAULT_SETTINGS = {
 	darkMode: false,
 };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
+const API_BASE =
+	globalThis.process?.env?.NEXT_PUBLIC_API_BASE_URL
+	|| globalThis.process?.env?.NEXT_PUBLIC_API_URL
+	|| "http://localhost:3001";
 
 export default function SearchPage() {
 	const [query, setQuery] = useState("");
@@ -31,11 +34,11 @@ export default function SearchPage() {
 	useEffect(() => {
 		if (typeof window === "undefined") return;
 
-		const savedArabicFont = localStorage.getItem("arabicFont");
-		const savedArabicSize = localStorage.getItem("arabicSize");
-		const savedTranslationSize = localStorage.getItem("translationSize");
-		const savedDecorativeCards = localStorage.getItem("decorativeCards");
-		const savedDarkMode = localStorage.getItem("darkMode");
+		const savedArabicFont = globalThis.localStorage?.getItem("arabicFont");
+		const savedArabicSize = globalThis.localStorage?.getItem("arabicSize");
+		const savedTranslationSize = globalThis.localStorage?.getItem("translationSize");
+		const savedDecorativeCards = globalThis.localStorage?.getItem("decorativeCards");
+		const savedDarkMode = globalThis.localStorage?.getItem("darkMode");
 
 		setSettings({
 			arabicFont: savedArabicFont || DEFAULT_SETTINGS.arabicFont,
@@ -51,13 +54,13 @@ export default function SearchPage() {
 
 	const handleSettingsChange = useCallback((next) => {
 		if (typeof window !== "undefined") {
-			localStorage.setItem("arabicFont", next.arabicFont);
-			localStorage.setItem("arabicSize", String(next.arabicSize));
-			localStorage.setItem("translationSize", String(next.translationSize));
-			localStorage.setItem("decorativeCards", String(Boolean(next.decorativeCards)));
-			localStorage.setItem("darkMode", String(Boolean(next.darkMode)));
-			document.documentElement.classList.toggle("dark", Boolean(next.darkMode));
-			window.dispatchEvent(new Event("quran-theme-change"));
+			globalThis.localStorage?.setItem("arabicFont", next.arabicFont);
+			globalThis.localStorage?.setItem("arabicSize", String(next.arabicSize));
+			globalThis.localStorage?.setItem("translationSize", String(next.translationSize));
+			globalThis.localStorage?.setItem("decorativeCards", String(Boolean(next.decorativeCards)));
+			globalThis.localStorage?.setItem("darkMode", String(Boolean(next.darkMode)));
+			globalThis.document?.documentElement?.classList.toggle("dark", Boolean(next.darkMode));
+			globalThis.window?.dispatchEvent(new globalThis.Event("quran-theme-change"));
 		}
 
 		setSettings((prev) => {
@@ -87,8 +90,8 @@ export default function SearchPage() {
 		setError("");
 
 		try {
-			const params = new URLSearchParams({ q: trimmed, lang, limit: "100" });
-			const response = await fetch(`${API_BASE}/api/search?${params.toString()}`);
+			const params = new globalThis.URLSearchParams({ q: trimmed, lang, limit: "100" });
+			const response = await globalThis.fetch(`${API_BASE}/api/search?${params.toString()}`);
 
 			if (!response.ok) {
 				throw new Error("Failed to search ayahs");
@@ -116,11 +119,11 @@ export default function SearchPage() {
 			return;
 		}
 
-		const timerId = setTimeout(() => {
+		const timerId = globalThis.setTimeout(() => {
 			runSearch();
 		}, 250);
 
-		return () => clearTimeout(timerId);
+		return () => globalThis.clearTimeout(timerId);
 	}, [query, lang, runSearch]);
 
 	const resultCountLabel = useMemo(() => {
@@ -161,6 +164,7 @@ export default function SearchPage() {
 								onChange={(event) => setQuery(event.target.value)}
 								placeholder="Search ayah text..."
 								aria-label="Search ayah text"
+								className="dark:text-slate-900 dark:placeholder:text-slate-500"
 							/>
 							<Button type="button" onClick={runSearch} disabled={isLoading}>
 								{isLoading ? "Searching" : "Search"}

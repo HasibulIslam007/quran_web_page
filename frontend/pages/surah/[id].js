@@ -46,11 +46,11 @@ export default function SurahPage({ surah }) {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const savedArabicFont = localStorage.getItem("arabicFont");
-    const savedArabicSize = localStorage.getItem("arabicSize");
-    const savedTranslationSize = localStorage.getItem("translationSize");
-    const savedDecorativeCards = localStorage.getItem("decorativeCards");
-    const savedDarkMode = localStorage.getItem("darkMode");
+    const savedArabicFont = globalThis.localStorage?.getItem("arabicFont");
+    const savedArabicSize = globalThis.localStorage?.getItem("arabicSize");
+    const savedTranslationSize = globalThis.localStorage?.getItem("translationSize");
+    const savedDecorativeCards = globalThis.localStorage?.getItem("decorativeCards");
+    const savedDarkMode = globalThis.localStorage?.getItem("darkMode");
 
     setSettings({
       arabicFont: normalizeArabicFont(savedArabicFont || "Amiri"),
@@ -65,13 +65,13 @@ export default function SurahPage({ surah }) {
     const normalizedArabicFont = normalizeArabicFont(newSettings.arabicFont);
 
     if (typeof window !== "undefined") {
-      localStorage.setItem("arabicFont", normalizedArabicFont);
-      localStorage.setItem("arabicSize", String(newSettings.arabicSize));
-      localStorage.setItem("translationSize", String(newSettings.translationSize));
-      localStorage.setItem("decorativeCards", String(Boolean(newSettings.decorativeCards)));
-      localStorage.setItem("darkMode", String(Boolean(newSettings.darkMode)));
-      document.documentElement.classList.toggle("dark", Boolean(newSettings.darkMode));
-      window.dispatchEvent(new Event("quran-theme-change"));
+      globalThis.localStorage?.setItem("arabicFont", normalizedArabicFont);
+      globalThis.localStorage?.setItem("arabicSize", String(newSettings.arabicSize));
+      globalThis.localStorage?.setItem("translationSize", String(newSettings.translationSize));
+      globalThis.localStorage?.setItem("decorativeCards", String(Boolean(newSettings.decorativeCards)));
+      globalThis.localStorage?.setItem("darkMode", String(Boolean(newSettings.darkMode)));
+      globalThis.document?.documentElement?.classList.toggle("dark", Boolean(newSettings.darkMode));
+      globalThis.window?.dispatchEvent(new globalThis.Event("quran-theme-change"));
     }
 
     const normalizedSettings = {

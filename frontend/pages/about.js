@@ -39,11 +39,11 @@ export default function AboutPage() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const savedArabicFont = localStorage.getItem("arabicFont");
-    const savedArabicSize = localStorage.getItem("arabicSize");
-    const savedTranslationSize = localStorage.getItem("translationSize");
-    const savedDecorativeCards = localStorage.getItem("decorativeCards");
-    const savedDarkMode = localStorage.getItem("darkMode");
+    const savedArabicFont = globalThis.localStorage?.getItem("arabicFont");
+    const savedArabicSize = globalThis.localStorage?.getItem("arabicSize");
+    const savedTranslationSize = globalThis.localStorage?.getItem("translationSize");
+    const savedDecorativeCards = globalThis.localStorage?.getItem("decorativeCards");
+    const savedDarkMode = globalThis.localStorage?.getItem("darkMode");
 
     setSettings({
       arabicFont: normalizeArabicFont(savedArabicFont || DEFAULT_SETTINGS.arabicFont),
@@ -60,13 +60,13 @@ export default function AboutPage() {
   const handleSettingsChange = useCallback((next) => {
     if (typeof window !== "undefined") {
       const normalizedArabicFont = normalizeArabicFont(next.arabicFont);
-      localStorage.setItem("arabicFont", normalizedArabicFont);
-      localStorage.setItem("arabicSize", String(next.arabicSize));
-      localStorage.setItem("translationSize", String(next.translationSize));
-      localStorage.setItem("decorativeCards", String(Boolean(next.decorativeCards)));
-      localStorage.setItem("darkMode", String(Boolean(next.darkMode)));
-      document.documentElement.classList.toggle("dark", Boolean(next.darkMode));
-      window.dispatchEvent(new Event("quran-theme-change"));
+      globalThis.localStorage?.setItem("arabicFont", normalizedArabicFont);
+      globalThis.localStorage?.setItem("arabicSize", String(next.arabicSize));
+      globalThis.localStorage?.setItem("translationSize", String(next.translationSize));
+      globalThis.localStorage?.setItem("decorativeCards", String(Boolean(next.decorativeCards)));
+      globalThis.localStorage?.setItem("darkMode", String(Boolean(next.darkMode)));
+      globalThis.document?.documentElement?.classList.toggle("dark", Boolean(next.darkMode));
+      globalThis.window?.dispatchEvent(new globalThis.Event("quran-theme-change"));
 
       setSettings({ ...next, arabicFont: normalizedArabicFont });
       return;
@@ -119,10 +119,10 @@ export default function AboutPage() {
       />
 
       <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        <section className="relative overflow-hidden rounded-3xl border border-emerald-100 bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 p-6 shadow-sm dark:border-emerald-200 dark:from-white dark:via-white dark:to-slate-50">
+        <section className="relative overflow-hidden rounded-3xl border border-emerald-100 bg-linear-to-br from-emerald-50 via-teal-50 to-cyan-50 p-6 shadow-sm dark:border-emerald-200 dark:from-white dark:via-white dark:to-slate-50">
           <div className="absolute -top-16 -right-16 h-52 w-52 rounded-full bg-emerald-200/40 blur-3xl" />
           <div className="absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-teal-200/40 blur-3xl" />
-
+    
           <div className="relative z-10">
             <p className="mb-3 inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700">
               About This Project
